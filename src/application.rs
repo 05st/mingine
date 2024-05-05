@@ -6,17 +6,11 @@ use winit::{
     application::ApplicationHandler,
     event::*,
     event_loop::ActiveEventLoop,
-    window::Window,
+    window::{Window, WindowId},
 };
 
 pub struct Application {
-    context: Option<Context>,
-}
-
-impl Application {
-    pub fn new() -> Self {
-        Application { context: None }
-    }
+    pub context: Option<Context>,
 }
 
 impl ApplicationHandler for Application {
@@ -34,11 +28,34 @@ impl ApplicationHandler for Application {
     fn window_event(
         &mut self,
         event_loop: &ActiveEventLoop,
-        _window_id: winit::window::WindowId,
+        window_id: WindowId,
         event: WindowEvent,
     ) {
+        let ctx = self.context.as_mut().unwrap();
         match event {
             WindowEvent::CloseRequested => event_loop.exit(),
+            WindowEvent::Resized(physical_size) => {
+                ctx.resize(physical_size);
+                ctx.window.request_redraw();
+            },
+            WindowEvent::RedrawRequested if window_id == ctx.window.id() => {
+                ctx.window.request_redraw(); // request the next frame (draws in vsync)
+
+                match ctx.render() {
+                    Ok(_) => {},
+                    Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
+                    Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => ctx.resize(ctx.size),
+                    Err(e) => eprintln!("{:?}", e),
+                };
+            },
+            WindowEvent::CursorMoved { device_id: _, position } => {
+                ctx.clear_color = wgpu::Color {
+                    r: (position.x / 200.0).sin(),
+                    g: (position.y / 200.0).cos(),
+                    b: 0.3,
+                    a: 1.0,
+                };
+            },
             _ => (),
         };
     }

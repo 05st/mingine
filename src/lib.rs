@@ -8,7 +8,9 @@ mod context;
 pub fn run() {
     env_logger::init();
 
-    let mut app = Application::new();
+    let mut app = Application {
+        context: None,
+    };
 
     let event_loop = EventLoop::new().unwrap();
     event_loop
