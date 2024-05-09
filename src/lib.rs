@@ -4,6 +4,7 @@ use winit::event_loop::EventLoop;
 
 mod application;
 mod context;
+mod vertex;
 
 pub fn run() {
     env_logger::init();

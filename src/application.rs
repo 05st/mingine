@@ -16,7 +16,8 @@ pub struct Application {
 impl ApplicationHandler for Application {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         if let None = self.context {
-            let window_attributes = Window::default_attributes().with_title("Mingine");
+            let window_attributes = Window::default_attributes()
+                .with_title("Mingine");
             let window = event_loop
                 .create_window(window_attributes)
                 .expect("failed to create window");
