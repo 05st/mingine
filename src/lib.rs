@@ -5,6 +5,7 @@ use winit::event_loop::EventLoop;
 mod application;
 mod camera;
 mod context;
+mod texture;
 mod vertex;
 
 pub fn run() {
